@@ -1,0 +1,14 @@
+# Environment variables
+.env
+
+# Node dependencies
+node_modules/
+
+# ML model file (it's too large for Git)
+fracture_model.h5
+
+# Temporary user uploads
+uploads/
+
+# Temporary script for hashing passwords
+hashPassword.js
