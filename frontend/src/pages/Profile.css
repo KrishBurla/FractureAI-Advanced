@@ -1,0 +1,64 @@
+.profile-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 2rem;
+}
+
+.profile-card {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--accent);
+}
+
+.profile-card h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--accent);
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #666;
+}
+
+.detail-value {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.edit-button {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  margin-top: 2rem;
+  transition: opacity 0.2s;
+}
+
+.edit-button:hover {
+  opacity: 0.9;
+}

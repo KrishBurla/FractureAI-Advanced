@@ -1,0 +1,193 @@
+.dashboard {
+  width: 100%;
+  max-width: 900px;
+  margin: 4rem auto;
+  padding: 2rem;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+  font-size: 1.125rem;
+  color: #666;
+}
+
+.upload-card {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--accent);
+}
+
+.upload-card-header {
+  margin-bottom: 1.5rem;
+}
+
+.upload-card-header h3 {
+  font-size: 1.25rem;
+}
+
+.upload-card-header p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.dropzone {
+  background-color: var(--secondary);
+  border: 2px dashed var(--accent);
+  border-radius: 8px;
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.dropzone:hover {
+  background-color: #f1e6d4;
+  border-color: var(--primary);
+}
+
+.dropzone-content .upload-icon {
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.dropzone-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.dropzone-content p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.analyze-button {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+  transition: opacity 0.2s;
+}
+
+.analyze-button:hover {
+  opacity: 0.9;
+}
+
+/* Add these new styles to the end of Dashboard.css */
+
+.dropzone.active {
+  background-color: #e6d9c4; /* A slightly darker shade for feedback */
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  max-height: 300px;
+  object-fit: contain; /* Ensures the whole image is visible */
+  border-radius: 8px;
+}
+
+/* Add this to the end of Dashboard.css */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.loading-container p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+
+/* Add this new style to the end of Dashboard.css */
+.alert-message {
+  background-color: var(--secondary); /* Light tan background */
+  color: var(--text-color-primary);
+  border-left: 5px solid var(--primary); /* Tan accent border */
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  text-align: left;
+  font-weight: 500;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Media Queries for Responsiveness --- */
+@media screen and (max-width: 768px) {
+  .dashboard {
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+  .dashboard-header p {
+    font-size: 1rem;
+  }
+  .upload-card {
+    padding: 1.5rem;
+  }
+  .dropzone {
+    padding: 2rem;
+  }
+}
+
+/* Add this at the end of Dashboard.css */
+.dropzone.ready {
+  border-style: solid;
+  border-color: #b8d8be; /* A soft green to indicate success */
+  padding: 1rem; /* Reduce padding to better fit the preview */
+}
+
+/* Add these new styles for the preview container and clear button */
+
+.preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.clear-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.clear-button:hover {
+  opacity: 1;
+}
