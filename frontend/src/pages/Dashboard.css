@@ -191,3 +191,87 @@
 .clear-button:hover {
   opacity: 1;
 }
+
+/* === STYLES FOR PATIENT DETAILS MODAL === */
+
+.patient-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.patient-modal {
+  background: var(--surface-color);
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  outline: none;
+  border: 1px solid var(--accent);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.patient-modal h2 {
+  margin-top: 0;
+  color: var(--text-color-primary);
+}
+
+.patient-modal p {
+  color: var(--text-color-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.patient-details-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-color-primary);
+}
+
+.patient-details-form input,
+.patient-details-form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.modal-cancel-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.modal-confirm-button {
+  background-color: var(--primary);
+  color: white;
+}
+
+.modal-buttons button:hover {
+  opacity: 0.85;
+}

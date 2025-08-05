@@ -116,3 +116,11 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+/* Add this to History.css */
+.history-patient-info {
+  display: block;
+  font-size: 0.9rem;
+  color: #555;
+  margin: 4px 0;
+}

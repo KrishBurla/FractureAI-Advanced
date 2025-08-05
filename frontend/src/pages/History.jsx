@@ -61,6 +61,9 @@ const History = () => {
                 <img src={item.imagePath} alt="X-ray thumbnail" className="history-thumbnail" />
                 <div className="history-item-details">
                   <span className="history-result">{item.result.replace('_', ' ')}</span>
+                  <span className="history-patient-info">
+                    {item.patientName} (Age: {item.patientAge}, {item.patientSex})
+                  </span>
                   <span className="history-confidence">{(item.confidence * 100).toFixed(2)}% Confidence</span>
                 </div>
                 <span className="history-date">
