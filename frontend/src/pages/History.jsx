@@ -20,7 +20,7 @@ const History = () => {
     const fetchHistory = async () => {
       if (authState.isAuthenticated) {
         try {
-          const res = await axios.get('http://localhost:5001/api/history');
+          const res = await axios.get('${process.env.REACT_APP_API_URL}/api/history');
           setHistory(res.data);
         } catch (err) {
           console.error('Failed to fetch history:', err);

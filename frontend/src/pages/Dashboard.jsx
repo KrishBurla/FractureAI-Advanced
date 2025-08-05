@@ -78,7 +78,7 @@ const Dashboard = () => {
 
     try {
       // NOTE: Make sure your token is being sent if authMiddleware needs it!
-      const res = await axios.post('http://localhost:5001/api/predict', formData, {
+      const res = await axios.post('${process.env.REACT_APP_API_URL}/api/predict', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'x-auth-token': authState.token, // Pass the auth token

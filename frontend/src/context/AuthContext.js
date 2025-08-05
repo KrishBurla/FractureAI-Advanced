@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      const res = await axios.post('http://localhost:5001/api/auth/login', formData, config);
+      const res = await axios.post('${process.env.REACT_APP_API_URL}/api/auth/register', formData, config);
       localStorage.setItem('token', res.data.token);
       await loadUser();
       return { success: true };
