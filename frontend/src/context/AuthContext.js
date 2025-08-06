@@ -4,7 +4,7 @@ import setAuthToken from '../utils/setAuthToken';
 
 export const AuthContext = createContext();
 
-// ---> DEFINE THE API URL USING THE ENVIRONMENT VARIABLE <---
+// Use the environment variable for the API URL
 const API_URL = process.env.REACT_APP_API_URL;
 
 export const AuthProvider = ({ children }) => {
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      // ---> USE THE API_URL VARIABLE <---
+      // Use the variable here
       const res = await axios.get(`${API_URL}/api/auth/user`);
       setAuthState(prevState => ({
         ...prevState,
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      // ---> USE THE API_URL VARIABLE <---
+      // Use the variable here
       const res = await axios.post(`${API_URL}/api/auth/register`, formData, config);
       localStorage.setItem('token', res.data.token);
       await loadUser();
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      // ---> USE THE API_URL VARIABLE <---
+      // Use the variable here
       const res = await axios.post(`${API_URL}/api/auth/login`, formData, config);
       localStorage.setItem('token', res.data.token);
       await loadUser();
