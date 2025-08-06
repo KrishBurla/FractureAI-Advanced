@@ -9,13 +9,17 @@ const Prediction = require('./models/Prediction');
 const app = express();
 const historyRoutes = require('./routes/history');
 
-// --- START: CORS Configuration ---
+// --- START: VERIFY THIS CORS CONFIGURATION ---
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN,
+  origin: process.env.CORS_ORIGIN, // This MUST be set in Render
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true,
   optionsSuccessStatus: 200
 };
+
+// Use CORS middleware *before* any routes
 app.use(cors(corsOptions));
-// --- END: CORS Configuration ---
+// --- END: VERIFY ---
 
 // Middleware
 app.use(express.json());
