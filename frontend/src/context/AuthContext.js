@@ -1,8 +1,11 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react'; // 1. Import useCallback
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import setAuthToken from '../utils/setAuthToken';
 
 export const AuthContext = createContext();
+
+// ---> DEFINE THE API URL USING THE ENVIRONMENT VARIABLE <---
+const API_URL = process.env.REACT_APP_API_URL;
 
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
@@ -12,7 +15,6 @@ export const AuthProvider = ({ children }) => {
     user: null,
   });
 
-  // 2. Wrap logout in useCallback
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setAuthToken(null);
@@ -24,14 +26,14 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
-  // 3. Wrap loadUser in useCallback and add its dependency (logout)
   const loadUser = useCallback(async () => {
     if (localStorage.token) {
       setAuthToken(localStorage.token);
     }
 
     try {
-      const res = await axios.get('http://localhost:5001/api/auth/user');
+      // ---> USE THE API_URL VARIABLE <---
+      const res = await axios.get(`${API_URL}/api/auth/user`);
       setAuthState(prevState => ({
         ...prevState,
         isAuthenticated: true,
@@ -43,17 +45,17 @@ export const AuthProvider = ({ children }) => {
     }
   }, [logout]);
 
-  // Run loadUser once when the app loads
   useEffect(() => {
     loadUser();
-  }, [loadUser]); // 4. Add loadUser as a dependency
+  }, [loadUser]);
 
   const register = async (formData) => {
     const config = {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      const res = await axios.post('http://localhost:5001/api/auth/register', formData, config);
+      // ---> USE THE API_URL VARIABLE <---
+      const res = await axios.post(`${API_URL}/api/auth/register`, formData, config);
       localStorage.setItem('token', res.data.token);
       await loadUser();
       return { success: true };
@@ -75,7 +77,8 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      const res = await axios.post('${process.env.REACT_APP_API_URL}/api/auth/register', formData, config);
+      // ---> USE THE API_URL VARIABLE <---
+      const res = await axios.post(`${API_URL}/api/auth/login`, formData, config);
       localStorage.setItem('token', res.data.token);
       await loadUser();
       return { success: true };

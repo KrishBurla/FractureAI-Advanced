@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import Modal from 'react-modal'; // 1. Import Modal
+import Modal from 'react-modal';
 import { AuthContext } from '../context/AuthContext';
 import './History.css';
 
-// 2. Set the app element for accessibility
 Modal.setAppElement('#root');
+
+// ---> DEFINE THE API URL USING THE ENVIRONMENT VARIABLE <---
+const API_URL = process.env.REACT_APP_API_URL;
 
 const History = () => {
   const { authState } = useContext(AuthContext);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // 3. Add state for the modal
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -20,7 +20,8 @@ const History = () => {
     const fetchHistory = async () => {
       if (authState.isAuthenticated) {
         try {
-          const res = await axios.get('${process.env.REACT_APP_API_URL}/api/history');
+          // ---> USE THE API_URL VARIABLE <---
+          const res = await axios.get(`${API_URL}/api/history`);
           setHistory(res.data);
         } catch (err) {
           console.error('Failed to fetch history:', err);
@@ -32,7 +33,6 @@ const History = () => {
     fetchHistory();
   }, [authState.isAuthenticated]);
 
-  // 4. Functions to control the modal
   const openModal = (imageUrl) => {
     setSelectedImage(imageUrl);
     setModalIsOpen(true);
@@ -56,14 +56,10 @@ const History = () => {
         ) : (
           <div className="history-list">
             {history.map((item) => (
-              // 5. Make the item clickable
               <div key={item.id} className="history-item" onClick={() => openModal(item.imagePath)}>
                 <img src={item.imagePath} alt="X-ray thumbnail" className="history-thumbnail" />
                 <div className="history-item-details">
                   <span className="history-result">{item.result.replace('_', ' ')}</span>
-                  <span className="history-patient-info">
-                    {item.patientName} (Age: {item.patientAge}, {item.patientSex})
-                  </span>
                   <span className="history-confidence">{(item.confidence * 100).toFixed(2)}% Confidence</span>
                 </div>
                 <span className="history-date">
@@ -75,7 +71,6 @@ const History = () => {
         )}
       </div>
 
-      {/* 6. The Modal component */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
