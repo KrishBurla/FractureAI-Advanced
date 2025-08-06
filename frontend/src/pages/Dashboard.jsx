@@ -7,15 +7,17 @@ import './Dashboard.css';
 import { ThreeDots } from 'react-loader-spinner';
 import AnimatedCard from '../components/AnimatedCard';
 
-// ---> DEFINE THE API URL USING THE ENVIRONMENT VARIABLE <---
 const API_URL = process.env.REACT_APP_API_URL;
 
 const Dashboard = () => {
   const { authState } = useContext(AuthContext);
-  const { user } = authState;
+  const { user, token } = authState; // Get token from authState
 
+  // State for the uploaded file and its preview
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+
+  // State for the API response
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -25,6 +27,7 @@ const Dashboard = () => {
     if (selectedFile) {
       setFile(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
+      // Reset previous results when a new file is dropped
       setResult(null);
       setError('');
     }
@@ -54,11 +57,11 @@ const Dashboard = () => {
     formData.append('image', file);
 
     try {
-      // ---> USE THE API_URL VARIABLE <---
       const res = await axios.post(`${API_URL}/api/predict`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'x-auth-token': authState.token, // Make sure auth token is sent
+          // --- FIX: ADD THE AUTHENTICATION TOKEN HEADER ---
+          'x-auth-token': token,
         },
       });
       setResult(res.data);
@@ -71,14 +74,14 @@ const Dashboard = () => {
   };
 
   const handleReset = (event) => {
-    if (event) {
-      event.stopPropagation();
-    }
-    setFile(null);
-    setPreview(null);
-    setResult(null);
-    setError('');
-  };
+  if (event) {
+    event.stopPropagation(); // Prevents the dropzone from opening
+  }
+  setFile(null);
+  setPreview(null);
+  setResult(null);
+  setError('');
+};
 
   return (
     <div className="dashboard">
@@ -90,7 +93,9 @@ const Dashboard = () => {
       <AnimatedCard>
         <div className="upload-card">
           {result && <ResultCard user={user} result={result} onReset={handleReset} />}
+          
           {error && <div className="alert-message">{error}</div>}
+          
           {loading && (
             <div className="loading-container">
               <ThreeDots
@@ -104,6 +109,7 @@ const Dashboard = () => {
               <p>Analyzing, please wait...</p>
             </div>
           )}
+          
           {!result && !loading && (
             <div {...getRootProps({ className: `dropzone ${isDragActive ? 'active' : ''} ${preview ? 'ready' : ''}` })}>
               <input {...getInputProps()} />
@@ -125,6 +131,7 @@ const Dashboard = () => {
               )}
             </div>
           )}
+
           {preview && !result && !loading && (
             <button onClick={handleAnalyze} className="analyze-button">
               Analyze X-ray
