@@ -1,23 +1,32 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const sequelize = require('./config/database'); // Import database connection
-const User = require('./models/User'); // Import User model
+const sequelize = require('./config/database');
+const User = require('./models/User');
 const authRoutes = require('./routes/auth');
 const predictRoutes = require('./routes/predict');
-const Prediction = require('./models/Prediction'); // <-- ADD THIS LINE
+const Prediction = require('./models/Prediction');
 const app = express();
-const historyRoutes = require('./routes/history'); // <-- ADD THIS
+const historyRoutes = require('./routes/history');
+
+// --- START: CORS Configuration ---
+// This tells our server to only accept requests from the URL
+// we defined in our Render environment variables.
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN,
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+app.use(cors(corsOptions));
+// --- END: CORS Configuration ---
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/predict', predictRoutes);
-app.use('/api/history', historyRoutes); // <-- ADD THIS
+app.use('/api/history', historyRoutes);
 
 // Test route
 app.get('/', (req, res) => {
