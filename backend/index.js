@@ -10,11 +10,9 @@ const app = express();
 const historyRoutes = require('./routes/history');
 
 // --- START: CORS Configuration ---
-// This tells our server to only accept requests from the URL
-// we defined in our Render environment variables.
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,
-  optionsSuccessStatus: 200 // For legacy browser support
+  optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 // --- END: CORS Configuration ---
