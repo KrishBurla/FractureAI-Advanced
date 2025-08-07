@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { AuthContext } from '../context/AuthContext';
-import ResultCard from '../components/ResultCard/ResultCard'; // <-- IMPORT THE NEW COMPONENT
+import ResultCard from '../components/ResultCard/ResultCard'; // Ensure this path is correct
 import './Dashboard.css';
 import { ThreeDots } from 'react-loader-spinner';
 import AnimatedCard from '../components/AnimatedCard';
@@ -77,8 +77,12 @@ const Dashboard = () => {
           'x-auth-token': authState.token,
         },
       });
-      // The backend now returns the full prediction object including patient details
+      
+      // --- THE CRITICAL FIX IS HERE ---
+      // The backend response (res.data) contains the imagePath, prediction, and confidence.
+      // We are now correctly combining it with the patient details from the state.
       setResult({ ...res.data, patientName, patientAge, patientSex });
+      
     } catch (err) {
       console.error('Error analyzing image:', err);
       setError(err.response?.data?.details || 'Analysis failed. Please try again.');
@@ -96,6 +100,50 @@ const Dashboard = () => {
     setPatientName('');
     setPatientAge('');
     setPatientSex('');
+  };
+
+  const renderCardContent = () => {
+    if (result) {
+      return <ResultCard user={user} result={result} onReset={handleReset} />;
+    }
+
+    if (loading) {
+      return (
+        <div className="loading-container">
+          <ThreeDots height="80" width="80" radius="9" color="var(--primary)" visible={true} />
+          <p>Analyzing, please wait...</p>
+        </div>
+      );
+    }
+
+    // Default view: Upload form
+    return (
+      <>
+        {error && <div className="alert-message">{error}</div>}
+        <div {...getRootProps({ className: `dropzone ${isDragActive ? 'active' : ''} ${preview ? 'ready' : ''}` })}>
+          <input {...getInputProps()} />
+          {preview ? (
+            <div className="preview-container">
+              <img src={preview} alt="X-ray preview" className="image-preview" />
+              <button onClick={handleReset} className="clear-button">×</button>
+            </div>
+          ) : (
+            <div className="dropzone-content">
+              <svg className="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <h4>{isDragActive ? 'Drop the image here ...' : 'Drop your X-ray image here'}</h4>
+              <p>or click to browse files</p>
+            </div>
+          )}
+        </div>
+        {preview && (
+          <button onClick={handleAnalyzeClick} className="analyze-button">
+            Analyze X-ray
+          </button>
+        )}
+      </>
+    );
   };
 
   return (
@@ -135,48 +183,7 @@ const Dashboard = () => {
 
       <AnimatedCard>
         <div className="upload-card">
-          {/* --- THIS IS THE ONLY PART THAT CHANGES IN THE JSX --- */}
-          {/* If there's a result, show the new ResultCard component */}
-          {result ? (
-            <ResultCard user={user} result={result} onReset={handleReset} />
-          ) : (
-            <>
-              {/* Otherwise, show the upload interface */}
-              {error && <div className="alert-message">{error}</div>}
-              {loading ? (
-                <div className="loading-container">
-                  <ThreeDots height="80" width="80" radius="9" color="var(--primary)" visible={true} />
-                  <p>Analyzing, please wait...</p>
-                </div>
-              ) : (
-                <>
-                  <div {...getRootProps({ className: `dropzone ${isDragActive ? 'active' : ''} ${preview ? 'ready' : ''}` })}>
-                    <input {...getInputProps()} />
-                    {preview ? (
-                      <div className="preview-container">
-                        <img src={preview} alt="X-ray preview" className="image-preview" />
-                        <button onClick={handleReset} className="clear-button">×</button>
-                      </div>
-                    ) : (
-                      <div className="dropzone-content">
-                        <svg className="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-                        </svg>
-                        <h4>{isDragActive ? 'Drop the image here ...' : 'Drop your X-ray image here'}</h4>
-                        <p>or click to browse files</p>
-                      </div>
-                    )}
-                  </div>
-                  {preview && (
-                    <button onClick={handleAnalyzeClick} className="analyze-button">
-                      Analyze X-ray
-                    </button>
-                  )}
-                </>
-              )}
-            </>
-          )}
-          {/* --- END OF CHANGES --- */}
+          {renderCardContent()}
         </div>
       </AnimatedCard>
     </div>
