@@ -34,15 +34,26 @@
   border: 1px solid var(--accent);
   border-radius: 8px;
   transition: background-color 0.2s;
+  cursor: pointer;
 }
 
 .history-item:hover {
   background-color: var(--secondary);
 }
 
+.history-thumbnail {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 1rem;
+  border: 1px solid var(--accent);
+}
+
 .history-item-details {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .history-result {
@@ -62,29 +73,15 @@
   font-style: italic;
 }
 
-/* Add these styles to the end of History.css */
+/* === MODAL STYLES === */
 
-.history-item {
-  cursor: pointer; /* Indicates the item is clickable */
-}
-
-.history-thumbnail {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  object-fit: cover;
-  margin-right: 1rem;
-  border: 1px solid var(--accent);
-}
-
-/* Styles for the Modal */
 .image-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,29 +95,49 @@
   max-width: 80vw;
   max-height: 90vh;
   outline: none;
-  text-align: center;
+  position: relative;
 }
 
-.image-modal img {
-  max-width: 100%;
-  max-height: 75vh;
-  object-fit: contain;
-}
-
-.image-modal button {
-  margin-top: 1rem;
-  padding: 10px 20px;
-  background-color: var(--primary);
-  color: #fff;
+.close-modal-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
   cursor: pointer;
+  z-index: 2001;
+  transition: background-color 0.2s;
 }
 
-/* Add this to History.css */
-.history-patient-info {
-  display: block;
-  font-size: 0.9rem;
-  color: #555;
-  margin: 4px 0;
+.close-modal-button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* --- NEW: Styles for Click-to-Zoom --- */
+
+.image-zoom-container {
+  width: 100%;
+  height: 100%;
+  max-width: 80vw;
+  max-height: 80vh;
+  overflow: hidden;
+  cursor: zoom-in; /* Default cursor is zoom-in */
+}
+
+.image-zoom-container.zoomed {
+  cursor: zoom-out; /* When zoomed, cursor is zoom-out */
+}
+
+.image-zoom-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s ease-out;
 }
