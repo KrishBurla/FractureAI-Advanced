@@ -4,12 +4,21 @@ import { recommendations } from '../../utils/recommendations';
 import './ResultCard.css';
 
 const ResultCard = ({ user, result, onReset }) => {
-  const { prediction, confidence, patientName, patientAge, patientSex, imagePath } = result;
+  // Ensure we handle cases where result might not have all details
+  const { 
+    prediction, 
+    confidence, 
+    patientName, 
+    patientAge, 
+    patientSex, 
+    imagePath 
+  } = result;
+
   const confidencePercent = (confidence * 100).toFixed(2);
-  
   const specificRecommendations = recommendations[prediction];
 
   const formatPrediction = (text) => {
+    if (!text) return 'N/A';
     return text.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   };
 

@@ -10,30 +10,29 @@
   color: var(--text);
 }
 
-/* --- NEW: Flex container for two-column layout --- */
 .result-main-content {
   display: flex;
   gap: 2rem;
   margin-bottom: 2rem;
-  flex-wrap: wrap; /* Allows stacking on small screens */
+  flex-wrap: wrap; 
 }
 
 .result-image-container {
-  flex: 1; /* Take up 1 part of the space */
-  min-width: 250px; /* Prevent it from getting too small */
+  flex: 1; 
+  min-width: 250px;
 }
 
 .result-image {
   width: 100%;
   height: auto;
-  aspect-ratio: 1 / 1; /* Creates a square shape */
-  object-fit: cover; /* Ensures the image covers the square area */
+  aspect-ratio: 1 / 1; 
+  object-fit: cover; 
   border-radius: 8px;
   border: 1px solid var(--accent);
 }
 
 .result-details-container {
-  flex: 2; /* Take up 2 parts of the space, making it wider */
+  flex: 2; 
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -53,10 +52,8 @@
 }
 
 .patient-details-section p {
-  margin-bottom: 0.5rem;
+  margin: 0.5rem 0;
 }
-/* --- END --- */
-
 
 .result-item {
   display: flex;
@@ -68,7 +65,7 @@
 
 .result-label {
   font-weight: 600;
-  color: var(--text-color-secondary);
+  color: #666;
 }
 
 .result-value.prediction {
@@ -141,7 +138,7 @@
   border-radius: 8px;
   text-align: center;
   font-size: 0.9rem;
-  color: var(--text-color-secondary);
+  color: #666;
   border: 1px solid var(--accent);
 }
 
