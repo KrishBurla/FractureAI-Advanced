@@ -1,3 +1,6 @@
+// --- DEBUG: Log that the script is starting ---
+console.log("Server script starting...");
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -9,40 +12,48 @@ const Prediction = require('./models/Prediction');
 const app = express();
 const historyRoutes = require('./routes/history');
 
-// --- START: VERIFY THIS CORS CONFIGURATION ---
+// --- DEBUG: Log environment variables to check if they are loaded ---
+console.log("--- Environment Variables ---");
+console.log("PORT:", process.env.PORT);
+console.log("CORS_ORIGIN:", process.env.CORS_ORIGIN);
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_NAME:", process.env.DB_NAME);
+console.log("DB_PASSWORD:", process.env.DB_PASSWORD ? "Loaded" : "MISSING!"); // Don't log the actual password
+console.log("---------------------------");
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN, // This MUST be set in Render
+  origin: process.env.CORS_ORIGIN,
   methods: "GET,POST,PUT,DELETE",
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-// Use CORS middleware *before* any routes
 app.use(cors(corsOptions));
-// --- END: VERIFY ---
 
-// Middleware
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/predict', predictRoutes);
 app.use('/api/history', historyRoutes);
 
-// Test route
 app.get('/', (req, res) => {
     res.send('Fracture Detection API is running!');
 });
 
 const PORT = process.env.PORT || 5001;
 
-// Connect to database and start server
+// --- DEBUG: Log before attempting database connection ---
+console.log("Attempting to connect to the database...");
+
 sequelize.sync().then(() => {
-    console.log('✅ Database connected and synced');
+    console.log('✅ Database connected and synced successfully.');
     app.listen(PORT, () => {
         console.log(`✅ Server is running on port ${PORT}`);
     });
 }).catch(err => {
-    console.error('❌ Unable to connect to the database:', err);
+    // This is the most important log. If the server is crashing, this should appear.
+    console.error('❌ CRITICAL ERROR: Unable to connect to the database or sync models.');
+    console.error(err);
 });
