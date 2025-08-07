@@ -1,29 +1,46 @@
 import React from 'react';
-import './StaticPages.css';
+import AnimatedPage from '../components/AnimatedPage';
+import './HowItWorks.css';
+
+const FlipCard = ({ icon, title, children }) => (
+  <div className="flip-card" tabIndex="0">
+    <div className="flip-card-inner">
+      <div className="flip-card-front">
+        <div className="card-icon">{icon}</div>
+        <div className="card-title">{title}</div>
+      </div>
+      <div className="flip-card-back">
+        <div className="card-description">{children}</div>
+      </div>
+    </div>
+  </div>
+);
 
 const HowItWorks = () => {
   return (
-    <div className="static-page-container">
-      <div className="static-page-card">
-        <h1>How It Works</h1>
-        <p>Using FractureAI is a simple, three-step process designed for efficiency and ease of use.</p>
-        
-        <div className="step">
-          <h3>1. Upload Your Image</h3>
-          <p>Navigate to your dashboard and use the secure drag-and-drop interface to upload a patient's X-ray image. You can also click to browse and select a file from your computer. The system accepts common image formats like JPG and PNG.</p>
+    <AnimatedPage>
+      <div className="how-it-works-container">
+        <div className="how-it-works-header">
+          <h1>How FractureAI Works</h1>
+          <p>From a simple image to an intelligent analysis in seconds. Here's a look under the hood.</p>
         </div>
 
-        <div className="step">
-          <h3>2. AI-Powered Analysis</h3>
-          <p>Once you submit the image, our backend server preprocesses it and feeds it into our trained Convolutional Neural Network (CNN). The model analyzes the image for fracture patterns in a matter of seconds.</p>
-        </div>
-
-        <div className="step">
-          <h3>3. Receive Instant Results</h3>
-          <p>The system will display the diagnosis directly on your dashboard, classifying the result as No Fracture, Simple Fracture, or Comminuted Fracture. You will also see a confidence score, indicating the model's certainty. A detailed report is simultaneously sent to your registered email address for your records.</p>
+        <div className="flip-card-stack">
+          <FlipCard icon="📤" title="1. Secure Upload">
+            You start by securely uploading an X-ray image. The system accepts common formats like JPG and PNG for your convenience.
+          </FlipCard>
+          <FlipCard icon="⚙️" title="2. Image Pre-Processing">
+            Our system automatically prepares your image for the AI by resizing, standardizing, and converting it into a format the neural network can understand.
+          </FlipCard>
+          <FlipCard icon="🧠" title="3. AI Analysis">
+            The image is passed through our custom-trained Convolutional Neural Network (CNN) to identify key features and patterns indicative of fractures.
+          </FlipCard>
+          <FlipCard icon="📊" title="4. Instant Results">
+            Within seconds, the model classifies the X-ray and returns a prediction with a confidence score, displayed in a clear, easy-to-read format.
+          </FlipCard>
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 };
 

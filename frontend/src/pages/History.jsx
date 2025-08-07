@@ -12,18 +12,17 @@ const History = () => {
   const [loading, setLoading] = useState(true);
   
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-
-  // --- NEW: State for click-to-zoom functionality ---
+  const [selectedPrediction, setSelectedPrediction] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [position, setPosition] = useState({ x: 50, y: 50 }); // Start zoom in the center
-  // ---
+  const [position, setPosition] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     const fetchHistory = async () => {
       if (authState.isAuthenticated) {
         try {
-          const res = await axios.get('http://localhost:5001/api/history');
+          const res = await axios.get('http://localhost:5001/api/history', {
+            headers: { 'x-auth-token': authState.token }
+          });
           setHistory(res.data);
         } catch (err) {
           console.error('Failed to fetch history:', err);
@@ -33,34 +32,51 @@ const History = () => {
       }
     };
     fetchHistory();
-  }, [authState.isAuthenticated]);
+  }, [authState.isAuthenticated, authState.token]);
 
-  const openModal = (imageUrl) => {
-    setSelectedImage(imageUrl);
+  const openModal = (prediction) => {
+    setSelectedPrediction(prediction);
     setModalIsOpen(true);
   };
 
   const closeModal = () => {
     setModalIsOpen(false);
-    setSelectedImage(null);
-    setIsZoomed(false); // Reset zoom on close
+    setSelectedPrediction(null);
+    setIsZoomed(false);
   };
 
-  // --- NEW: Handlers for click-to-zoom ---
-  const handleImageClick = (e) => {
-    // If already zoomed, zoom out. Otherwise, zoom in.
-    setIsZoomed(!isZoomed);
+  const formatPredictionText = (text) => {
+    if (!text) return 'N/A';
+    return text.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   };
+  
+  const handleImageClick = () => setIsZoomed(!isZoomed);
 
   const handleMouseMove = (e) => {
-    // This function now only runs when the image is zoomed in
     if (!isZoomed) return;
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
     setPosition({ x, y });
   };
-  // ---
+
+  // --- NEW: Function to handle clearing the history ---
+  const handleClearHistory = async () => {
+    // Confirm with the user before deleting
+    if (window.confirm('Are you sure you want to permanently delete your entire prediction history? This action cannot be undone.')) {
+      try {
+        await axios.delete('http://localhost:5001/api/history', {
+          headers: { 'x-auth-token': authState.token }
+        });
+        // Clear the history in the state to update the UI instantly
+        setHistory([]);
+      } catch (err) {
+        console.error('Failed to clear history:', err);
+        alert('Could not clear history. Please try again.');
+      }
+    }
+  };
+  // --- END ---
 
   if (loading) {
     return <div className="history-container"><p>Loading history...</p></div>;
@@ -73,46 +89,79 @@ const History = () => {
         {history.length === 0 ? (
           <p>You have no past predictions.</p>
         ) : (
-          <div className="history-list">
-            {history.map((item) => (
-              <div key={item.id} className="history-item" onClick={() => openModal(item.imagePath)}>
-                <img src={item.imagePath} alt="X-ray thumbnail" className="history-thumbnail" />
-                <div className="history-item-details">
-                  <span className="history-result">{item.result.replace('_', ' ')}</span>
-                  <span className="history-confidence">{(item.confidence * 100).toFixed(2)}% Confidence</span>
+          <>
+            <div className="history-list">
+              {history.map((item) => (
+                <div key={item.id} className="history-item" onClick={() => openModal(item)}>
+                  <img src={item.imagePath} alt="X-ray thumbnail" className="history-thumbnail" />
+                  <div className="history-item-details">
+                    <span className="history-result">{formatPredictionText(item.result)}</span>
+                    {item.patientName && (
+                        <span className="history-patient-info">
+                            {item.patientName}
+                        </span>
+                    )}
+                    <span className="history-confidence">{(item.confidence * 100).toFixed(2)}% Confidence</span>
+                  </div>
+                  <span className="history-date">
+                    {new Date(item.createdAt).toLocaleString()}
+                  </span>
                 </div>
-                <span className="history-date">
-                  {new Date(item.createdAt).toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+            {/* --- NEW: Clear History Button --- */}
+            <div className="clear-history-container">
+              <button onClick={handleClearHistory} className="clear-history-button">
+                Clear History
+              </button>
+            </div>
+            {/* --- END --- */}
+          </>
         )}
       </div>
 
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        contentLabel="X-Ray Image Preview"
-        className="image-modal"
-        overlayClassName="image-modal-overlay"
-      >
-        <button onClick={closeModal} className="close-modal-button">×</button>
-        <div 
-          className={`image-zoom-container ${isZoomed ? 'zoomed' : ''}`}
-          onClick={handleImageClick}
-          onMouseMove={handleMouseMove}
+      {selectedPrediction && (
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          contentLabel="Prediction Details"
+          className="history-modal"
+          overlayClassName="history-modal-overlay"
         >
-          <img 
-            src={selectedImage} 
-            alt="X-ray preview" 
-            style={{ 
-              transform: `scale(${isZoomed ? 2.5 : 1})`,
-              transformOrigin: `${position.x}% ${position.y}%`
-            }}
-          />
-        </div>
-      </Modal>
+          <button onClick={closeModal} className="close-modal-button">×</button>
+          <h3>Analysis Details</h3>
+          <div className="history-modal-content">
+            <div 
+              className={`history-modal-image-container ${isZoomed ? 'zoomed' : ''}`}
+              onClick={handleImageClick}
+              onMouseMove={handleMouseMove}
+            >
+              <img 
+                src={selectedPrediction.imagePath} 
+                alt="X-ray preview" 
+                style={{
+                  transform: `scale(${isZoomed ? 2.5 : 1})`,
+                  transformOrigin: `${position.x}% ${position.y}%`
+                }}
+              />
+            </div>
+            <div className="history-modal-details-container">
+              <div className="patient-details-section">
+                <h4>Patient Details</h4>
+                <p><strong>Name:</strong> {selectedPrediction.patientName}</p>
+                <p><strong>Age:</strong> {selectedPrediction.patientAge}</p>
+                <p><strong>Sex:</strong> {selectedPrediction.patientSex}</p>
+              </div>
+              <div className="analysis-details-section">
+                <h4>Analysis</h4>
+                <p><strong>Result:</strong> {formatPredictionText(selectedPrediction.result)}</p>
+                <p><strong>Confidence:</strong> {(selectedPrediction.confidence * 100).toFixed(2)}%</p>
+                <p><strong>Date:</strong> {new Date(selectedPrediction.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

@@ -1,10 +1,10 @@
+/* --- HISTORY LIST STYLES --- */
 .history-container {
   width: 100%;
   max-width: 900px;
   margin: 4rem auto;
   padding: 2rem;
 }
-
 .history-card {
   background-color: var(--surface-color);
   border-radius: 12px;
@@ -12,20 +12,17 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--accent);
 }
-
 .history-card h1 {
   font-size: 2.2rem;
   font-weight: 800;
   margin-bottom: 2rem;
   text-align: center;
 }
-
 .history-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
-
 .history-item {
   display: flex;
   justify-content: space-between;
@@ -36,11 +33,9 @@
   transition: background-color 0.2s;
   cursor: pointer;
 }
-
 .history-item:hover {
   background-color: var(--secondary);
 }
-
 .history-thumbnail {
   width: 60px;
   height: 60px;
@@ -49,33 +44,32 @@
   margin-right: 1rem;
   border: 1px solid var(--accent);
 }
-
 .history-item-details {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
-
 .history-result {
   font-weight: 700;
   font-size: 1.1rem;
   text-transform: capitalize;
 }
-
-.history-confidence {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.history-date {
+.history-patient-info {
   font-size: 0.9rem;
   color: #666;
   font-style: italic;
 }
+.history-confidence {
+  font-size: 0.9rem;
+  color: #666;
+}
+.history-date {
+  font-size: 0.9rem;
+  color: #666;
+}
 
-/* === MODAL STYLES === */
-
-.image-modal-overlay {
+/* --- MODAL STYLES --- */
+.history-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -87,57 +81,103 @@
   justify-content: center;
   z-index: 2000;
 }
-
-.image-modal {
+.history-modal {
   background: var(--surface-color);
-  padding: 20px;
+  padding: 2rem;
   border-radius: 12px;
-  max-width: 80vw;
+  width: 90%;
+  max-width: 800px;
   max-height: 90vh;
   outline: none;
   position: relative;
 }
-
+.history-modal h3 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
 .close-modal-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  color: #666;
   border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 20px;
-  line-height: 30px;
-  text-align: center;
+  font-size: 24px;
   cursor: pointer;
-  z-index: 2001;
-  transition: background-color 0.2s;
+}
+.history-modal-content {
+  display: flex;
+  gap: 2rem;
 }
 
-.close-modal-button:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
-
-/* --- NEW: Styles for Click-to-Zoom --- */
-
-.image-zoom-container {
-  width: 100%;
-  height: 100%;
-  max-width: 80vw;
-  max-height: 80vh;
-  overflow: hidden;
+/* --- ZOOM FEATURE STYLES --- */
+.history-modal-image-container {
+  flex: 1;
+  min-width: 250px;
+  overflow: hidden; /* This is crucial for the zoom effect */
   cursor: zoom-in; /* Default cursor is zoom-in */
 }
 
-.image-zoom-container.zoomed {
+.history-modal-image-container.zoomed {
   cursor: zoom-out; /* When zoomed, cursor is zoom-out */
 }
 
-.image-zoom-container img {
+.history-modal-image-container img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: transform 0.2s ease-out;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  transition: transform 0.2s ease-out; /* Smooth transition for zoom */
+}
+/* --- END OF ZOOM STYLES --- */
+
+.history-modal-details-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.patient-details-section, .analysis-details-section {
+  padding: 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+.patient-details-section h4, .analysis-details-section h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--accent);
+  padding-bottom: 0.5rem;
+}
+.patient-details-section p, .analysis-details-section p {
+  margin: 0.5rem 0;
+}
+
+/* --- ADD THESE STYLES TO THE END OF History.css --- */
+
+.clear-history-container {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--accent);
+  display: flex;
+  justify-content: center;
+}
+
+.clear-history-button {
+  background-color: #d9534f; /* A shade of red for a destructive action */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 25px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.clear-history-button:hover {
+  background-color: #c9302c; /* A darker red on hover */
 }

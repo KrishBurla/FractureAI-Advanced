@@ -97,6 +97,7 @@
   text-align: right;
 }
 
+/* --- RECOMMENDATIONS SECTION FIX --- */
 .recommendations-section {
   margin-top: 1rem;
   padding-top: 1.5rem;
@@ -106,12 +107,13 @@
 .recommendations-section h4 {
   font-size: 1.1rem;
   margin-bottom: 1rem;
-  color: var(--text);
+  color: var(--text); /* Use theme text color */
 }
 
 .recommendations-section ul {
   list-style-type: none;
   padding-left: 0;
+  color: var(--text-color-secondary); /* Use theme secondary text color */
 }
 
 .recommendations-section li {
@@ -130,6 +132,7 @@
   font-size: 1.2rem;
   line-height: 1;
 }
+/* --- END OF FIX --- */
 
 .email-notification {
   margin-top: 2rem;

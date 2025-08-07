@@ -4,8 +4,9 @@ import { recommendations } from '../../utils/recommendations';
 import './ResultCard.css';
 
 const ResultCard = ({ user, result, onReset }) => {
-  const { prediction, confidence, patientName, patientAge, patientSex, imagePath } = result;
-  const confidencePercent = (confidence * 100).toFixed(2);
+  // Use 'prediction' if it exists, otherwise fall back to 'result' for consistency
+  const prediction = result.prediction || result.result;
+  const confidencePercent = (result.confidence * 100).toFixed(2);
   
   const specificRecommendations = recommendations[prediction];
 
@@ -17,42 +18,21 @@ const ResultCard = ({ user, result, onReset }) => {
   return (
     <div className="result-card-container">
       <h3>Analysis Result</h3>
-      
-      <div className="result-main-content">
-        <div className="result-image-container">
-          <img src={imagePath} alt="Analyzed X-Ray" className="result-image" />
+      <div className="result-item">
+        <span className="result-label">Prediction:</span>
+        <span className="result-value prediction">{formatPrediction(prediction)}</span>
+      </div>
+      <div className="result-item">
+        <span className="result-label">Confidence:</span>
+        <div className="confidence-bar-container">
+          <motion.div
+            className="confidence-bar"
+            initial={{ width: 0 }}
+            animate={{ width: `${confidencePercent}%` }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          />
         </div>
-        
-        <div className="result-details-container">
-          {patientName && (
-            <div className="patient-details-section">
-              <h4>Patient Details</h4>
-              <p><strong>Name:</strong> {patientName}</p>
-              <p><strong>Age:</strong> {patientAge}</p>
-              <p><strong>Sex:</strong> {patientSex}</p>
-            </div>
-          )}
-
-          <div className="analysis-details-section">
-            <h4>Analysis</h4>
-            <div className="result-item">
-              <span className="result-label">Prediction:</span>
-              <span className="result-value prediction">{formatPrediction(prediction)}</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Confidence:</span>
-              <div className="confidence-bar-container">
-                <motion.div
-                  className="confidence-bar"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${confidencePercent}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                />
-              </div>
-              <span className="result-value confidence">{confidencePercent}%</span>
-            </div>
-          </div>
-        </div>
+        <span className="result-value confidence">{confidencePercent}%</span>
       </div>
 
       {specificRecommendations && (
