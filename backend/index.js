@@ -14,7 +14,7 @@ const historyRoutes = require('./routes/history');
 // List of all frontend URLs that are allowed to connect
 const whitelist = [
     process.env.CORS_ORIGIN, // Your main production URL from Render's variables
-    'https://fracture-ai-application-96t8nge6m-krishs-projects-5883e3b0.vercel.app' // The specific preview URL
+    'https://fracture-ai-application-crs4nkx4k-krishs-projects-5883e3b0.vercel.app' // The specific preview URL
 ];
 
 const corsOptions = {
