@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { AuthContext } from '../context/AuthContext';
-import ResultCard from '../components/ResultCard/ResultCard'; // Correctly importing the new component
+import ResultCard from '../components/ResultCard/ResultCard'; // <-- IMPORT THE NEW COMPONENT
 import './Dashboard.css';
 import { ThreeDots } from 'react-loader-spinner';
 import AnimatedCard from '../components/AnimatedCard';
@@ -77,7 +77,8 @@ const Dashboard = () => {
           'x-auth-token': authState.token,
         },
       });
-      setResult({ ...res.data, patientName, patientAge, patientSex });
+      // The backend response (res.data) now returns the full saved record
+      setResult(res.data);
     } catch (err) {
       console.error('Error analyzing image:', err);
       setError(err.response?.data?.details || 'Analysis failed. Please try again.');
@@ -97,9 +98,10 @@ const Dashboard = () => {
     setPatientSex('');
   };
 
-  // This function correctly decides what to render inside the card
+  // This function correctly decides what content to show in the main card
   const renderCardContent = () => {
     if (result) {
+      // If we have a result, render the NEW ResultCard component
       return <ResultCard user={user} result={result} onReset={handleReset} />;
     }
 
@@ -112,6 +114,7 @@ const Dashboard = () => {
       );
     }
 
+    // Otherwise, show the uploader interface
     return (
       <>
         {error && <div className="alert-message">{error}</div>}
@@ -178,7 +181,7 @@ const Dashboard = () => {
 
       <AnimatedCard>
         <div className="upload-card">
-          {/* --- THE FIX IS HERE: Call the render function --- */}
+          {/* This now correctly calls the function to render the right content */}
           {renderCardContent()}
         </div>
       </AnimatedCard>
