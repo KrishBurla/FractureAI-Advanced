@@ -1,13 +1,14 @@
 import React, { useState, useCallback, useContext } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-import Modal from 'react-modal';
+import Modal from 'react-modal'; // Import Modal
 import { AuthContext } from '../context/AuthContext';
 import ResultCard from '../components/ResultCard/ResultCard';
 import './Dashboard.css';
 import { ThreeDots } from 'react-loader-spinner';
 import AnimatedCard from '../components/AnimatedCard';
 
+// Set app element for accessibility
 Modal.setAppElement('#root');
 
 const Dashboard = () => {
@@ -19,10 +20,13 @@ const Dashboard = () => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // --- STATE FOR MODAL AND PATIENT DETAILS ---
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [patientName, setPatientName] = useState('');
   const [patientAge, setPatientAge] = useState('');
   const [patientSex, setPatientSex] = useState('');
+  // --- END ---
 
   const onDrop = useCallback((acceptedFiles) => {
     const selectedFile = acceptedFiles[0];
@@ -40,6 +44,7 @@ const Dashboard = () => {
     multiple: false,
   });
 
+  // This function now just OPENS the modal
   const handleAnalyzeClick = () => {
     if (!authState.isAuthenticated) {
       setError('Please log in to analyze an image.');
@@ -52,12 +57,14 @@ const Dashboard = () => {
     setModalIsOpen(true);
   };
 
+  // This new function handles the final submission FROM the modal
   const handleConfirmAnalysis = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent form from reloading page
     if (!patientName || !patientAge || !patientSex) {
       alert("Please fill in all patient details.");
       return;
     }
+
     setModalIsOpen(false);
     setLoading(true);
     setResult(null);
@@ -65,11 +72,13 @@ const Dashboard = () => {
 
     const formData = new FormData();
     formData.append('image', file);
+    // --- FIX: APPEND PATIENT DETAILS TO FORMDATA ---
     formData.append('patientName', patientName);
     formData.append('patientAge', patientAge);
     formData.append('patientSex', patientSex);
 
     try {
+      // Use the localhost URL for local development
       const res = await axios.post('http://localhost:5001/api/predict', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -114,9 +123,21 @@ const Dashboard = () => {
         <p>Please enter the following information before analysis.</p>
         <form onSubmit={handleConfirmAnalysis} className="patient-details-form">
           <label>Patient Name</label>
-          <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="e.g., John Doe" required />
+          <input
+            type="text"
+            value={patientName}
+            onChange={(e) => setPatientName(e.target.value)}
+            placeholder="e.g., John Doe"
+            required
+          />
           <label>Patient Age</label>
-          <input type="number" value={patientAge} onChange={(e) => setPatientAge(e.target.value)} placeholder="e.g., 45" required />
+          <input
+            type="number"
+            value={patientAge}
+            onChange={(e) => setPatientAge(e.target.value)}
+            placeholder="e.g., 45"
+            required
+          />
           <label>Patient Sex</label>
           <select value={patientSex} onChange={(e) => setPatientSex(e.target.value)} required>
             <option value="" disabled>Select Sex...</option>

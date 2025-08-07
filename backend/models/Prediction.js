@@ -7,7 +7,6 @@ const Prediction = sequelize.define('Prediction', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  // Note: The original field was 'result', ensure consistency
   result: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -29,10 +28,8 @@ const Prediction = sequelize.define('Prediction', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  // --- END ---
 });
 
-// Create the association: A User can have many Predictions
 User.hasMany(Prediction);
 Prediction.belongsTo(User);
 

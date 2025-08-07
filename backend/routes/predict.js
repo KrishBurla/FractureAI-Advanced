@@ -12,92 +12,61 @@ const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 router.post('/', [authMiddleware, upload.single('image')], (req, res) => {
-    // --- DEBUG STEP 1: Log that the request was received ---
-    console.log('\n--- NEW PREDICTION REQUEST ---');
-    
     if (!req.file) {
-        console.log('[ERROR] Request failed: No file was uploaded.');
-        return res.status(400).send('No file uploaded.');
+        return res.status(400).json({ message: 'No file uploaded.' });
     }
-    
-    // --- DEBUG STEP 2: Log all received body data ---
-    const { patientName, patientAge, patientSex } = req.body;
-    console.log('Received Patient Details:', { patientName, patientAge, patientSex });
 
+    const { patientName, patientAge, patientSex } = req.body;
     if (!patientName || !patientAge || !patientSex) {
-        console.log('[ERROR] Request failed: Missing patient details.');
-        return res.status(400).send('Patient name, age, and sex are required.');
+        return res.status(400).json({ message: 'Patient name, age, and sex are required.' });
     }
 
     const imagePath = req.file.path;
-    const pythonScriptPath = path.resolve(__dirname, '..', 'predict.py'); // Use absolute path
-    
-    // --- DEBUG STEP 3: Log paths before executing ---
-    console.log(`Attempting to execute Python script: "${pythonScriptPath}"`);
-    console.log(`With image argument: "${imagePath}"`);
-
-    const pythonProcess = spawn('python', [pythonScriptPath, imagePath]);
+    const pythonScript = path.join(__dirname, '..', 'predict.py');
+    const pythonProcess = spawn('python', [pythonScript, imagePath]);
 
     let predictionData = '';
-    let errorData = ''; // <-- This will store any error messages
+    let errorData = '';
 
-    // Listen to the normal output of the script
-    pythonProcess.stdout.on('data', (data) => {
-        console.log(`[PYTHON STDOUT]: ${data.toString()}`);
-        predictionData += data.toString();
-    });
-
-    // --- CRITICAL DEBUG STEP: Listen to the error output of the script ---
-    // Any error inside predict.py (like a missing library or file) will be caught here.
+    pythonProcess.stdout.on('data', (data) => { predictionData += data.toString(); });
     pythonProcess.stderr.on('data', (data) => {
-        console.error(`[!!! PYTHON STDERR !!!]: ${data.toString()}`);
+        console.error(`Python Script Error: ${data}`);
         errorData += data.toString();
     });
 
-    // --- DEBUG STEP 4: Log when the script finishes and what its exit code is ---
     pythonProcess.on('close', async (code) => {
-        console.log(`Python script finished with exit code: ${code}`);
-
-        // If the exit code is anything other than 0, it means an error occurred.
         if (code !== 0) {
-            console.log('[ERROR] Python script failed. Sending error response.');
-            return res.status(500).json({
-                error: 'Failed to process image due to a script error.',
-                details: errorData // Send the captured error to the frontend
-            });
+            return res.status(500).json({ error: 'Failed to process image.', details: errorData });
         }
 
         try {
-            console.log('Parsing JSON and saving to database...');
             const result = JSON.parse(predictionData);
+            const imageUrl = `${req.protocol}://${req.get('host')}/${imagePath.replace(/\\/g, "/")}`;
 
-            const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, "/")}`;
-
+            // --- SAVE TO DATABASE (ONCE) ---
             await Prediction.create({
                 imagePath: imageUrl,
                 result: result.prediction,
                 confidence: result.confidence,
                 UserId: req.user.id,
-                patientName,
+                patientName: patientName,
                 patientAge: parseInt(patientAge, 10),
-                patientSex,
+                patientSex: patientSex,
             });
-            console.log('Prediction saved successfully.');
 
+            // --- SEND EMAIL ---
             const user = await User.findByPk(req.user.id);
             if (user) {
-                sendPredictionEmail(user.email, result, imageUrl);
-                console.log('Email sent.');
+                sendPredictionEmail(user.email, result, imagePath);
             }
 
-            console.log('--- REQUEST SUCCEEDED ---');
             return res.json(result);
 
         } catch (e) {
-            console.error('[ERROR] Failed after script execution (JSON parsing or DB save):', e);
+            console.error(`Error after python script execution: ${e}`);
             return res.status(500).json({
-                error: 'Failed to save data or parse the result from the script.',
-                details: e.message
+                error: 'Failed to process or save data.',
+                details: errorData || 'Could not parse python script output.'
             });
         }
     });
