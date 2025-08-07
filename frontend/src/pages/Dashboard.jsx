@@ -10,8 +10,6 @@ import AnimatedCard from '../components/AnimatedCard';
 
 Modal.setAppElement('#root');
 
-const API_URL = process.env.REACT_APP_API_URL;
-
 const Dashboard = () => {
   const { authState } = useContext(AuthContext);
   const { user } = authState;
@@ -60,7 +58,6 @@ const Dashboard = () => {
       alert("Please fill in all patient details.");
       return;
     }
-
     setModalIsOpen(false);
     setLoading(true);
     setResult(null);
@@ -73,10 +70,9 @@ const Dashboard = () => {
     formData.append('patientSex', patientSex);
 
     try {
-      const res = await axios.post(`${API_URL}/api/predict`, formData, {
+      const res = await axios.post('http://localhost:5001/api/predict', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          // --- FIX: ADD THE AUTHENTICATION TOKEN HEADER ---
           'x-auth-token': authState.token,
         },
       });
@@ -118,21 +114,9 @@ const Dashboard = () => {
         <p>Please enter the following information before analysis.</p>
         <form onSubmit={handleConfirmAnalysis} className="patient-details-form">
           <label>Patient Name</label>
-          <input
-            type="text"
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
-            placeholder="e.g., John Doe"
-            required
-          />
+          <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="e.g., John Doe" required />
           <label>Patient Age</label>
-          <input
-            type="number"
-            value={patientAge}
-            onChange={(e) => setPatientAge(e.target.value)}
-            placeholder="e.g., 45"
-            required
-          />
+          <input type="number" value={patientAge} onChange={(e) => setPatientAge(e.target.value)} placeholder="e.g., 45" required />
           <label>Patient Sex</label>
           <select value={patientSex} onChange={(e) => setPatientSex(e.target.value)} required>
             <option value="" disabled>Select Sex...</option>

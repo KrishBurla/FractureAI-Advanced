@@ -6,9 +6,6 @@ import './History.css';
 
 Modal.setAppElement('#root');
 
-// ---> DEFINE THE API URL USING THE ENVIRONMENT VARIABLE <---
-const API_URL = process.env.REACT_APP_API_URL;
-
 const History = () => {
   const { authState } = useContext(AuthContext);
   const [history, setHistory] = useState([]);
@@ -20,8 +17,8 @@ const History = () => {
     const fetchHistory = async () => {
       if (authState.isAuthenticated) {
         try {
-          // ---> USE THE API_URL VARIABLE <---
-          const res = await axios.get(`${API_URL}/api/history`);
+          // Reverted to localhost
+          const res = await axios.get('http://localhost:5001/api/history');
           setHistory(res.data);
         } catch (err) {
           console.error('Failed to fetch history:', err);
@@ -59,8 +56,14 @@ const History = () => {
               <div key={item.id} className="history-item" onClick={() => openModal(item.imagePath)}>
                 <img src={item.imagePath} alt="X-ray thumbnail" className="history-thumbnail" />
                 <div className="history-item-details">
-                  <span className="history-result">{item.result.replace('_', ' ')}</span>
-                  <span className="history-confidence">{(item.confidence * 100).toFixed(2)}% Confidence</span>
+                   <span className="history-result">{item.result.replace('_', ' ')}</span>
+                   {/* Display patient details if they exist */}
+                   {item.patientName && (
+                       <span className="history-patient-info">
+                           {item.patientName} (Age: {item.patientAge}, {item.patientSex})
+                       </span>
+                   )}
+                   <span className="history-confidence">{(item.confidence * 100).toFixed(2)}% Confidence</span>
                 </div>
                 <span className="history-date">
                   {new Date(item.createdAt).toLocaleString()}

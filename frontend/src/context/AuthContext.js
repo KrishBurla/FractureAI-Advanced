@@ -4,9 +4,6 @@ import setAuthToken from '../utils/setAuthToken';
 
 export const AuthContext = createContext();
 
-// Use the environment variable for the API URL
-const API_URL = process.env.REACT_APP_API_URL;
-
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     token: localStorage.getItem('token'),
@@ -32,8 +29,8 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      // Use the variable here
-      const res = await axios.get(`${API_URL}/api/auth/user`);
+      // Reverted to localhost
+      const res = await axios.get('http://localhost:5001/api/auth/user');
       setAuthState(prevState => ({
         ...prevState,
         isAuthenticated: true,
@@ -54,8 +51,8 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      // Use the variable here
-      const res = await axios.post(`${API_URL}/api/auth/register`, formData, config);
+      // Reverted to localhost
+      const res = await axios.post('http://localhost:5001/api/auth/register', formData, config);
       localStorage.setItem('token', res.data.token);
       await loadUser();
       return { success: true };
@@ -77,8 +74,8 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      // Use the variable here
-      const res = await axios.post(`${API_URL}/api/auth/login`, formData, config);
+      // Reverted to localhost
+      const res = await axios.post('http://localhost:5001/api/auth/login', formData, config);
       localStorage.setItem('token', res.data.token);
       await loadUser();
       return { success: true };

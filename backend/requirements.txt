@@ -1,5 +1,0 @@
-# backend/requirements.txt
-
-tensorflow
-numpy
-opencv-python
