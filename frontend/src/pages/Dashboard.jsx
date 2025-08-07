@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { AuthContext } from '../context/AuthContext';
-import ResultCard from '../components/ResultCard/ResultCard'; // Ensure this path is correct
+import ResultCard from '../components/ResultCard/ResultCard'; // Correctly importing the new component
 import './Dashboard.css';
 import { ThreeDots } from 'react-loader-spinner';
 import AnimatedCard from '../components/AnimatedCard';
@@ -77,12 +77,7 @@ const Dashboard = () => {
           'x-auth-token': authState.token,
         },
       });
-      
-      // --- THE CRITICAL FIX IS HERE ---
-      // The backend response (res.data) contains the imagePath, prediction, and confidence.
-      // We are now correctly combining it with the patient details from the state.
       setResult({ ...res.data, patientName, patientAge, patientSex });
-      
     } catch (err) {
       console.error('Error analyzing image:', err);
       setError(err.response?.data?.details || 'Analysis failed. Please try again.');
@@ -102,6 +97,7 @@ const Dashboard = () => {
     setPatientSex('');
   };
 
+  // This function correctly decides what to render inside the card
   const renderCardContent = () => {
     if (result) {
       return <ResultCard user={user} result={result} onReset={handleReset} />;
@@ -116,7 +112,6 @@ const Dashboard = () => {
       );
     }
 
-    // Default view: Upload form
     return (
       <>
         {error && <div className="alert-message">{error}</div>}
@@ -183,6 +178,7 @@ const Dashboard = () => {
 
       <AnimatedCard>
         <div className="upload-card">
+          {/* --- THE FIX IS HERE: Call the render function --- */}
           {renderCardContent()}
         </div>
       </AnimatedCard>
