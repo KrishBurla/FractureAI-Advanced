@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { AuthContext } from '../context/AuthContext';
-import ResultCard from '../components/ResultCard/ResultCard'; // <-- IMPORT THE NEW COMPONENT
+import ResultCard from '../components/ResultCard/ResultCard';
 import './Dashboard.css';
 import { ThreeDots } from 'react-loader-spinner';
 import AnimatedCard from '../components/AnimatedCard';
@@ -23,6 +23,7 @@ const Dashboard = () => {
   const [patientName, setPatientName] = useState('');
   const [patientAge, setPatientAge] = useState('');
   const [patientSex, setPatientSex] = useState('');
+  const [patientId, setPatientId] = useState(''); // <-- NEW STATE
 
   const onDrop = useCallback((acceptedFiles) => {
     const selectedFile = acceptedFiles[0];
@@ -55,7 +56,7 @@ const Dashboard = () => {
   const handleConfirmAnalysis = async (e) => {
     e.preventDefault();
     if (!patientName || !patientAge || !patientSex) {
-      alert("Please fill in all patient details.");
+      alert("Please fill in patient name, age, and sex.");
       return;
     }
 
@@ -69,6 +70,7 @@ const Dashboard = () => {
     formData.append('patientName', patientName);
     formData.append('patientAge', patientAge);
     formData.append('patientSex', patientSex);
+    formData.append('patientId', patientId); // <-- SEND NEW ID
 
     try {
       const res = await axios.post('http://localhost:5001/api/predict', formData, {
@@ -77,7 +79,6 @@ const Dashboard = () => {
           'x-auth-token': authState.token,
         },
       });
-      // The backend response (res.data) now returns the full saved record
       setResult(res.data);
     } catch (err) {
       console.error('Error analyzing image:', err);
@@ -96,15 +97,13 @@ const Dashboard = () => {
     setPatientName('');
     setPatientAge('');
     setPatientSex('');
+    setPatientId(''); // <-- RESET NEW ID
   };
 
-  // This function correctly decides what content to show in the main card
   const renderCardContent = () => {
     if (result) {
-      // If we have a result, render the NEW ResultCard component
       return <ResultCard user={user} result={result} onReset={handleReset} />;
     }
-
     if (loading) {
       return (
         <div className="loading-container">
@@ -113,8 +112,6 @@ const Dashboard = () => {
         </div>
       );
     }
-
-    // Otherwise, show the uploader interface
     return (
       <>
         {error && <div className="alert-message">{error}</div>}
@@ -161,10 +158,31 @@ const Dashboard = () => {
         <h2>Patient Details</h2>
         <p>Please enter the following information before analysis.</p>
         <form onSubmit={handleConfirmAnalysis} className="patient-details-form">
+          {/* --- NEW INPUT FIELD FOR PATIENT ID --- */}
+          <label>Patient ID (Optional)</label>
+          <input
+            type="text"
+            value={patientId}
+            onChange={(e) => setPatientId(e.target.value)}
+            placeholder="e.g., A123-456"
+          />
+          {/* --- END --- */}
           <label>Patient Name</label>
-          <input type="text" value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="e.g., John Doe" required />
+          <input
+            type="text"
+            value={patientName}
+            onChange={(e) => setPatientName(e.target.value)}
+            placeholder="e.g., John Doe"
+            required
+          />
           <label>Patient Age</label>
-          <input type="number" value={patientAge} onChange={(e) => setPatientAge(e.target.value)} placeholder="e.g., 45" required />
+          <input
+            type="number"
+            value={patientAge}
+            onChange={(e) => setPatientAge(e.target.value)}
+            placeholder="e.g., 45"
+            required
+          />
           <label>Patient Sex</label>
           <select value={patientSex} onChange={(e) => setPatientSex(e.target.value)} required>
             <option value="" disabled>Select Sex...</option>
@@ -181,7 +199,6 @@ const Dashboard = () => {
 
       <AnimatedCard>
         <div className="upload-card">
-          {/* This now correctly calls the function to render the right content */}
           {renderCardContent()}
         </div>
       </AnimatedCard>

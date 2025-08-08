@@ -181,3 +181,26 @@
 .clear-history-button:hover {
   background-color: #c9302c; /* A darker red on hover */
 }
+
+/* --- ADD THESE STYLES TO THE END OF History.css --- */
+
+.search-container {
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background-color: var(--surface-color);
+  color: var(--text-color-primary);
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

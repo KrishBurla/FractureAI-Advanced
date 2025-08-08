@@ -15,7 +15,6 @@ const Prediction = sequelize.define('Prediction', {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
-  // --- ADD THESE NEW FIELDS ---
   patientName: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -27,6 +26,11 @@ const Prediction = sequelize.define('Prediction', {
   patientSex: {
     type: DataTypes.STRING,
     allowNull: true,
+  },
+  // --- ADD THIS NEW FIELD ---
+  patientId: {
+    type: DataTypes.STRING,
+    allowNull: true, // Set to false if you want it to be a required field
   },
 });
 

@@ -1,8 +1,8 @@
 const nodemailer = require('nodemailer');
-require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 
-// The function now accepts an imagePath
-const sendPredictionEmail = async (userEmail, predictionResult, imagePath) => {
+const sendPredictionEmail = async (user, predictionDetails) => {
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -12,11 +12,13 @@ const sendPredictionEmail = async (userEmail, predictionResult, imagePath) => {
             },
         });
 
+        const localImagePath = path.join(__dirname, '..', predictionDetails.imagePath.substring(predictionDetails.imagePath.indexOf('uploads')));
+
         const mailOptions = {
-            from: `"Fracture Detection AI" <${process.env.EMAIL_USER}>`,
-            to: userEmail,
-            subject: 'Your X-Ray Analysis Result',
-            // --- New professional HTML body ---
+            from: `"FractureAI" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: 'Your FractureAI Analysis Report',
+            // --- UPDATED: HTML restored to match original style with correct formatting ---
             html: `
               <div style="background-color: #f7f5f2; margin: 0; padding: 40px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
                 <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
@@ -24,7 +26,7 @@ const sendPredictionEmail = async (userEmail, predictionResult, imagePath) => {
                     <h1 style="margin: 0; font-size: 24px;">Fracture Detection Report</h1>
                   </div>
                   <div style="padding: 30px;">
-                    <h2 style="font-size: 20px; color: #333;">Analysis Complete</h2>
+                    <h2 style="font-size: 20px; color: #333;">Hello ${user.fullName},</h2>
                     <p style="font-size: 16px; line-height: 1.6;">Thank you for using our service. Here is the AI-generated report for your submitted X-ray.</p>
                     
                     <div style="text-align: center; margin: 20px 0;">
@@ -32,29 +34,39 @@ const sendPredictionEmail = async (userEmail, predictionResult, imagePath) => {
                     </div>
 
                     <div style="background-color: #f7f5f2; padding: 20px; border-radius: 4px;">
-                      <h3 style="margin-top: 0; border-bottom: 2px solid #ddd; padding-bottom: 10px;">Results</h3>
-                      <p style="font-size: 18px; margin: 10px 0;"><strong>Prediction:</strong> <span style="font-weight: bold; color: #d9534f;">${predictionResult.prediction.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</span></p>
-                      <p style="font-size: 18px; margin: 10px 0;"><strong>Confidence:</strong> <span style="font-weight: bold; color: #333;">${(predictionResult.confidence * 100).toFixed(2)}%</span></p>
+                      <h3 style="margin-top: 0; border-bottom: 2px solid #ddd; padding-bottom: 10px; font-size: 18px;">Patient Details</h3>
+                      <p style="font-size: 16px; margin: 8px 0;"><strong>ID:</strong> ${predictionDetails.patientId || 'N/A'}</p>
+                      <p style="font-size: 16px; margin: 8px 0;"><strong>Name:</strong> ${predictionDetails.patientName}</p>
+                      <p style="font-size: 16px; margin: 8px 0;"><strong>Age:</strong> ${predictionDetails.patientAge}</p>
+                      <p style="font-size: 16px; margin: 8px 0;"><strong>Sex:</strong> ${predictionDetails.patientSex}</p>
+                      <br>
+                      <h3 style="margin-top: 10px; border-bottom: 2px solid #ddd; padding-bottom: 10px; font-size: 18px;">Analysis Results</h3>
+                      <p style="font-size: 18px; margin: 10px 0;"><strong>Prediction:</strong> <span style="font-weight: bold; color: #d9534f;">${(predictionDetails.result || '').replace(/_/g, ' ')}</span></p>
+                      <p style="font-size: 18px; margin: 10px 0;"><strong>Confidence:</strong> <span style="font-weight: bold; color: #333;">${(predictionDetails.confidence * 100).toFixed(2)}%</span></p>
                     </div>
 
                     <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #888;">
                       <p><strong>Disclaimer:</strong> This is an AI-generated analysis and is not a substitute for a professional medical diagnosis. Please consult a qualified doctor for any medical concerns.</p>
-                      <p>&copy; ${new Date().getFullYear()} Fracture Detection App. All Rights Reserved.</p>
+                      <p>&copy; ${new Date().getFullYear()} FractureAI. All Rights Reserved.</p>
                     </div>
                   </div>
                 </div>
               </div>
             `,
-            // --- This section attaches the image ---
             attachments: [{
                 filename: 'xray-result.jpg',
-                path: imagePath,
-                cid: 'xrayimage' // a unique ID for the image
+                path: localImagePath,
+                cid: 'xrayimage' 
             }]
         };
-
-        await transporter.sendMail(mailOptions);
-        console.log('✅ Professional email sent successfully.');
+        
+        // Only try to send the email if the image file actually exists
+        if (fs.existsSync(localImagePath)) {
+            await transporter.sendMail(mailOptions);
+            console.log('✅ Professional email sent successfully.');
+        } else {
+            console.error(`❌ Error: Could not find image to attach at ${localImagePath}`);
+        }
 
     } catch (error) {
         console.error('❌ Error sending professional email:', error);

@@ -8,14 +8,17 @@ Modal.setAppElement('#root');
 
 const History = () => {
   const { authState } = useContext(AuthContext);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState([]); // Master list of all predictions
+  const [filteredHistory, setFilteredHistory] = useState([]); // List to be displayed
   const [loading, setLoading] = useState(true);
-  
+  const [searchTerm, setSearchTerm] = useState(''); // State for the search input
+
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedPrediction, setSelectedPrediction] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [position, setPosition] = useState({ x: 50, y: 50 });
 
+  // Fetch all history data when the component loads
   useEffect(() => {
     const fetchHistory = async () => {
       if (authState.isAuthenticated) {
@@ -24,6 +27,7 @@ const History = () => {
             headers: { 'x-auth-token': authState.token }
           });
           setHistory(res.data);
+          setFilteredHistory(res.data); // Initially, display all history
         } catch (err) {
           console.error('Failed to fetch history:', err);
         } finally {
@@ -33,6 +37,15 @@ const History = () => {
     };
     fetchHistory();
   }, [authState.isAuthenticated, authState.token]);
+
+  // --- NEW: Effect to filter history when search term changes ---
+  useEffect(() => {
+    const results = history.filter(prediction =>
+      prediction.patientId && prediction.patientId.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredHistory(results);
+  }, [searchTerm, history]);
+  // --- END ---
 
   const openModal = (prediction) => {
     setSelectedPrediction(prediction);
@@ -60,23 +73,20 @@ const History = () => {
     setPosition({ x, y });
   };
 
-  // --- NEW: Function to handle clearing the history ---
   const handleClearHistory = async () => {
-    // Confirm with the user before deleting
-    if (window.confirm('Are you sure you want to permanently delete your entire prediction history? This action cannot be undone.')) {
+    if (window.confirm('Are you sure you want to permanently delete your entire prediction history?')) {
       try {
         await axios.delete('http://localhost:5001/api/history', {
           headers: { 'x-auth-token': authState.token }
         });
-        // Clear the history in the state to update the UI instantly
-        setHistory([]);
+        setHistory([]); // Clear the master list
+        setSearchTerm(''); // Reset search term
       } catch (err) {
         console.error('Failed to clear history:', err);
         alert('Could not clear history. Please try again.');
       }
     }
   };
-  // --- END ---
 
   if (loading) {
     return <div className="history-container"><p>Loading history...</p></div>;
@@ -86,21 +96,35 @@ const History = () => {
     <div className="history-container">
       <div className="history-card">
         <h1>Prediction History</h1>
+
+        {/* --- NEW: Search Bar --- */}
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search by Patient ID..."
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        {/* --- END --- */}
+
         {history.length === 0 ? (
           <p>You have no past predictions.</p>
+        ) : filteredHistory.length === 0 ? (
+            <p>No predictions found for that Patient ID.</p>
         ) : (
           <>
             <div className="history-list">
-              {history.map((item) => (
+              {/* --- MODIFIED: Map over filteredHistory --- */}
+              {filteredHistory.map((item) => (
                 <div key={item.id} className="history-item" onClick={() => openModal(item)}>
                   <img src={item.imagePath} alt="X-ray thumbnail" className="history-thumbnail" />
                   <div className="history-item-details">
                     <span className="history-result">{formatPredictionText(item.result)}</span>
-                    {item.patientName && (
-                        <span className="history-patient-info">
-                            {item.patientName}
-                        </span>
-                    )}
+                    <span className="history-patient-info">
+                        {item.patientName} (ID: {item.patientId || 'N/A'})
+                    </span>
                     <span className="history-confidence">{(item.confidence * 100).toFixed(2)}% Confidence</span>
                   </div>
                   <span className="history-date">
@@ -109,13 +133,11 @@ const History = () => {
                 </div>
               ))}
             </div>
-            {/* --- NEW: Clear History Button --- */}
             <div className="clear-history-container">
               <button onClick={handleClearHistory} className="clear-history-button">
-                Clear History
+                Clear All History
               </button>
             </div>
-            {/* --- END --- */}
           </>
         )}
       </div>
@@ -148,6 +170,7 @@ const History = () => {
             <div className="history-modal-details-container">
               <div className="patient-details-section">
                 <h4>Patient Details</h4>
+                <p><strong>ID:</strong> {selectedPrediction.patientId || 'N/A'}</p>
                 <p><strong>Name:</strong> {selectedPrediction.patientName}</p>
                 <p><strong>Age:</strong> {selectedPrediction.patientAge}</p>
                 <p><strong>Sex:</strong> {selectedPrediction.patientSex}</p>

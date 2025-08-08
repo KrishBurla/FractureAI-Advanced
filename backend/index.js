@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5001;
 
 // Use alter:true just in case the new columns were added to your local DB
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync().then(() => {
     console.log('✅ Database connected and synced');
     app.listen(PORT, () => {
         console.log(`✅ Server is running on port ${PORT}`);

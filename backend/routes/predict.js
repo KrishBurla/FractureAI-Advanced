@@ -16,7 +16,7 @@ router.post('/', [authMiddleware, upload.single('image')], (req, res) => {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
 
-    const { patientName, patientAge, patientSex } = req.body;
+    const { patientName, patientAge, patientSex, patientId } = req.body;
     if (!patientName || !patientAge || !patientSex) {
         return res.status(400).json({ message: 'Patient name, age, and sex are required.' });
     }
@@ -38,13 +38,11 @@ router.post('/', [authMiddleware, upload.single('image')], (req, res) => {
         if (code !== 0) {
             return res.status(500).json({ error: 'Failed to process image.', details: errorData });
         }
-
         try {
             const result = JSON.parse(predictionData);
             const imageUrl = `${req.protocol}://${req.get('host')}/${imagePath.replace(/\\/g, "/")}`;
 
-            // --- SAVE TO DATABASE (ONCE) ---
-            await Prediction.create({
+            const newPrediction = await Prediction.create({
                 imagePath: imageUrl,
                 result: result.prediction,
                 confidence: result.confidence,
@@ -52,15 +50,17 @@ router.post('/', [authMiddleware, upload.single('image')], (req, res) => {
                 patientName: patientName,
                 patientAge: parseInt(patientAge, 10),
                 patientSex: patientSex,
+                patientId: patientId,
             });
 
-            // --- SEND EMAIL ---
             const user = await User.findByPk(req.user.id);
             if (user) {
-                sendPredictionEmail(user.email, result, imagePath);
+                // This now passes the full user and prediction objects to the email utility
+                sendPredictionEmail(user, newPrediction);
             }
-
-            return res.json(result);
+            
+            // Return the full saved object to the frontend
+            return res.json(newPrediction);
 
         } catch (e) {
             console.error(`Error after python script execution: ${e}`);
