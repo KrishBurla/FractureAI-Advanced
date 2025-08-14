@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [patientName, setPatientName] = useState('');
   const [patientAge, setPatientAge] = useState('');
   const [patientSex, setPatientSex] = useState('');
-  const [patientId, setPatientId] = useState(''); // <-- NEW STATE
+  const [patientId, setPatientId] = useState('');
 
   const onDrop = useCallback((acceptedFiles) => {
     const selectedFile = acceptedFiles[0];
@@ -70,7 +70,12 @@ const Dashboard = () => {
     formData.append('patientName', patientName);
     formData.append('patientAge', patientAge);
     formData.append('patientSex', patientSex);
-    formData.append('patientId', patientId); // <-- SEND NEW ID
+    formData.append('patientId', patientId);
+
+    // --- DEBUGGING STEP ---
+    // This will print the token to your browser's console.
+    console.log("DEBUGGING: Token being sent:", authState.token);
+    // --- END DEBUGGING STEP ---
 
     try {
       const res = await axios.post('http://localhost:5001/api/predict', formData, {
@@ -97,7 +102,7 @@ const Dashboard = () => {
     setPatientName('');
     setPatientAge('');
     setPatientSex('');
-    setPatientId(''); // <-- RESET NEW ID
+    setPatientId('');
   };
 
   const renderCardContent = () => {
@@ -158,7 +163,6 @@ const Dashboard = () => {
         <h2>Patient Details</h2>
         <p>Please enter the following information before analysis.</p>
         <form onSubmit={handleConfirmAnalysis} className="patient-details-form">
-          {/* --- NEW INPUT FIELD FOR PATIENT ID --- */}
           <label>Patient ID (Optional)</label>
           <input
             type="text"
@@ -166,7 +170,6 @@ const Dashboard = () => {
             onChange={(e) => setPatientId(e.target.value)}
             placeholder="e.g., A123-456"
           />
-          {/* --- END --- */}
           <label>Patient Name</label>
           <input
             type="text"

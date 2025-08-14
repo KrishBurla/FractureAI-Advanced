@@ -1,2 +1,24 @@
-# Ignore Python virtual environment
-backend/venv/
+# Node.js / React
+node_modules/
+build/
+dist/
+.npm
+npm-debug.log*
+
+# Python / Flask
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# AI Model (Important!)
+# The .h5 file is likely too large for GitHub. 
+# Consider using Git LFS or storing it separately.
+*.h5
+
+# Environment Variables (Very Important!)
+.env
+
+# OS-specific
+.DS_Store
+Thumbs.db

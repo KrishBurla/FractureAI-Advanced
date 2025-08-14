@@ -24,19 +24,23 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const loadUser = useCallback(async () => {
-    if (localStorage.token) {
-      setAuthToken(localStorage.token);
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
     }
 
     try {
-      // Reverted to localhost
       const res = await axios.get('http://localhost:5001/api/auth/user');
-      setAuthState(prevState => ({
-        ...prevState,
+      
+      // --- THE FIX IS HERE ---
+      // This now correctly updates the token in the state along with the user info.
+      setAuthState({
+        token: token, // Add the token from localStorage to the state
         isAuthenticated: true,
         loading: false,
         user: res.data,
-      }));
+      });
+
     } catch (err) {
       logout();
     }
@@ -51,10 +55,9 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      // Reverted to localhost
       const res = await axios.post('http://localhost:5001/api/auth/register', formData, config);
       localStorage.setItem('token', res.data.token);
-      await loadUser();
+      await loadUser(); // This will now correctly update the state
       return { success: true };
     } catch (err) {
       if (err.response) {
@@ -74,10 +77,9 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
     };
     try {
-      // Reverted to localhost
       const res = await axios.post('http://localhost:5001/api/auth/login', formData, config);
       localStorage.setItem('token', res.data.token);
-      await loadUser();
+      await loadUser(); // This will now correctly update the state
       return { success: true };
     } catch (err) {
       if (err.response) {

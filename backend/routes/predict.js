@@ -1,75 +1,67 @@
 const express = require('express');
 const multer = require('multer');
-const { spawn } = require('child_process');
-const path = require('path');
+const axios = require('axios'); // We need axios here now
+const FormData = require('form-data'); // And form-data
+const fs = require('fs');
 const authMiddleware = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const sendPredictionEmail = require('../utils/sendEmail');
 const Prediction = require('../models/Prediction');
 
 const router = express.Router();
-
 const upload = multer({ dest: 'uploads/' });
 
-router.post('/', [authMiddleware, upload.single('image')], (req, res) => {
+// The URL of our new Python Flask service
+const PYTHON_API_URL = 'http://127.0.0.1:5002/predict';
+
+router.post('/', [authMiddleware, upload.single('image')], async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
 
-    const { patientName, patientAge, patientSex, patientId } = req.body;
-    if (!patientName || !patientAge || !patientSex) {
-        return res.status(400).json({ message: 'Patient name, age, and sex are required.' });
+    try {
+        const { patientName, patientAge, patientSex, patientId } = req.body;
+        if (!patientName || !patientAge || !patientSex) {
+            return res.status(400).json({ message: 'Patient name, age, and sex are required.' });
+        }
+
+        // --- NEW: Call the Python API ---
+        const form = new FormData();
+        form.append('image', fs.createReadStream(req.file.path));
+
+        const pythonResponse = await axios.post(PYTHON_API_URL, form, {
+            headers: form.getHeaders(),
+        });
+        
+        const result = pythonResponse.data; // { prediction: '...', confidence: 0.99 }
+        const imageUrl = `${req.protocol}://${req.get('host')}/${req.file.path.replace(/\\/g, "/")}`;
+
+        const newPrediction = await Prediction.create({
+            imagePath: imageUrl,
+            result: result.prediction,
+            confidence: result.confidence,
+            UserId: req.user.id,
+            patientName,
+            patientAge: parseInt(patientAge, 10),
+            patientSex,
+            patientId,
+        });
+
+        const user = await User.findByPk(req.user.id);
+        if (user) {
+            sendPredictionEmail(user, newPrediction);
+        }
+        
+        // Return the full saved record to the frontend
+        return res.json(newPrediction);
+
+    } catch (error) {
+        console.error('Error during prediction process:', error.response ? error.response.data : error.message);
+        return res.status(500).json({
+            error: 'Failed to process image.',
+            details: error.response ? error.response.data : 'Could not connect to the prediction service.'
+        });
     }
-
-    const imagePath = req.file.path;
-    const pythonScript = path.join(__dirname, '..', 'predict.py');
-    const pythonProcess = spawn('python', [pythonScript, imagePath]);
-
-    let predictionData = '';
-    let errorData = '';
-
-    pythonProcess.stdout.on('data', (data) => { predictionData += data.toString(); });
-    pythonProcess.stderr.on('data', (data) => {
-        console.error(`Python Script Error: ${data}`);
-        errorData += data.toString();
-    });
-
-    pythonProcess.on('close', async (code) => {
-        if (code !== 0) {
-            return res.status(500).json({ error: 'Failed to process image.', details: errorData });
-        }
-        try {
-            const result = JSON.parse(predictionData);
-            const imageUrl = `${req.protocol}://${req.get('host')}/${imagePath.replace(/\\/g, "/")}`;
-
-            const newPrediction = await Prediction.create({
-                imagePath: imageUrl,
-                result: result.prediction,
-                confidence: result.confidence,
-                UserId: req.user.id,
-                patientName: patientName,
-                patientAge: parseInt(patientAge, 10),
-                patientSex: patientSex,
-                patientId: patientId,
-            });
-
-            const user = await User.findByPk(req.user.id);
-            if (user) {
-                // This now passes the full user and prediction objects to the email utility
-                sendPredictionEmail(user, newPrediction);
-            }
-            
-            // Return the full saved object to the frontend
-            return res.json(newPrediction);
-
-        } catch (e) {
-            console.error(`Error after python script execution: ${e}`);
-            return res.status(500).json({
-                error: 'Failed to process or save data.',
-                details: errorData || 'Could not parse python script output.'
-            });
-        }
-    });
 });
 
 module.exports = router;
