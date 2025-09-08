@@ -71,26 +71,32 @@ const Dashboard = () => {
     formData.append('patientAge', patientAge);
     formData.append('patientSex', patientSex);
     formData.append('patientId', patientId);
-
-    // --- DEBUGGING STEP ---
-    // This will print the token to your browser's console.
-    console.log("DEBUGGING: Token being sent:", authState.token);
-    // --- END DEBUGGING STEP ---
+    
+    // --- MODIFICATION START ---
+    
+    // Create a minimum delay promise of 6 seconds (6000 milliseconds)
+    const minDelay = new Promise(resolve => setTimeout(resolve, 6000));
+    
+    // Create the API request promise
+    const apiRequest = axios.post('http://localhost:5001/api/predict', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'x-auth-token': authState.token,
+      },
+    });
 
     try {
-      const res = await axios.post('http://localhost:5001/api/predict', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'x-auth-token': authState.token,
-        },
-      });
-      setResult(res.data);
+      // Wait for both the API call and the minimum delay to complete
+      const [apiResponse] = await Promise.all([apiRequest, minDelay]);
+      
+      setResult(apiResponse.data);
     } catch (err) {
       console.error('Error analyzing image:', err);
       setError(err.response?.data?.details || 'Analysis failed. Please try again.');
     } finally {
       setLoading(false);
     }
+    // --- MODIFICATION END ---
   };
 
   const handleReset = (event) => {

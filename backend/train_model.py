@@ -6,6 +6,7 @@ import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras.utils import to_categorical
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # --- Configuration ---
 IMAGE_SIZE = 150 # Resize images to 150x150
@@ -47,6 +48,21 @@ X_train, X_val, y_train, y_val = train_test_split(images, labels, test_size=0.2,
 
 print(f"Data loaded: {len(X_train)} training samples, {len(X_val)} validation samples.")
 
+# --- NEW: Data Augmentation ---
+print("Creating data augmentation generator...")
+datagen = ImageDataGenerator(
+    rotation_range=15,      # Randomly rotate images by up to 15 degrees
+    width_shift_range=0.1,  # Randomly shift images horizontally
+    height_shift_range=0.1, # Randomly shift images vertically
+    shear_range=0.1,        # Apply shear transformations
+    zoom_range=0.1,         # Randomly zoom in on images
+    horizontal_flip=True,   # Randomly flip images horizontally
+    fill_mode='nearest'     # Fill in new pixels created by transformations
+)
+
+datagen.fit(X_train)
+# --- END NEW SECTION ---
+
 # --- CNN Model Architecture ---
 print("Building the CNN model...")
 model = Sequential([
@@ -71,12 +87,15 @@ model.compile(optimizer='adam',
 
 model.summary()
 
-# --- Model Training ---
-print("Starting model training...")
-history = model.fit(X_train, y_train,
-                    epochs=EPOCHS,
-                    batch_size=BATCH_SIZE,
-                    validation_data=(X_val, y_val))
+print("Starting model training with data augmentation...")
+
+# We use datagen.flow() to feed augmented images in batches
+history = model.fit(
+    datagen.flow(X_train, y_train, batch_size=BATCH_SIZE),
+    steps_per_epoch=len(X_train) // BATCH_SIZE,
+    epochs=EPOCHS,
+    validation_data=(X_val, y_val)
+)
 
 # --- Save the Model ---
 model.save('fracture_model.h5')
