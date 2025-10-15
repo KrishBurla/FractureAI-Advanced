@@ -7,6 +7,10 @@ const Prediction = sequelize.define('Prediction', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  annotatedImagePath: { // <-- ADD THIS
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   result: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -27,10 +31,9 @@ const Prediction = sequelize.define('Prediction', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  // --- ADD THIS NEW FIELD ---
   patientId: {
     type: DataTypes.STRING,
-    allowNull: true, // Set to false if you want it to be a required field
+    allowNull: true,
   },
 });
 

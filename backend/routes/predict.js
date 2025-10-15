@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
-const axios = require('axios'); // We need axios here now
-const FormData = require('form-data'); // And form-data
+const axios = require('axios'); 
+const FormData = require('form-data'); 
 const fs = require('fs');
 const authMiddleware = require('../middleware/authMiddleware');
 const User = require('../models/User');
@@ -11,10 +11,14 @@ const Prediction = require('../models/Prediction');
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
-// The URL of our new Python Flask service
+// The URL of the Python Flask service
 const PYTHON_API_URL = 'http://127.0.0.1:5002/predict';
 
-router.post('/', [authMiddleware, upload.single('image')], async (req, res) => {
+router.post('/', [authMiddleware, upload.single('image')]
+
+
+
+, async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
@@ -25,7 +29,7 @@ router.post('/', [authMiddleware, upload.single('image')], async (req, res) => {
             return res.status(400).json({ message: 'Patient name, age, and sex are required.' });
         }
 
-        // --- NEW: Call the Python API ---
+        
         const form = new FormData();
         form.append('image', fs.createReadStream(req.file.path));
 
@@ -38,6 +42,7 @@ router.post('/', [authMiddleware, upload.single('image')], async (req, res) => {
 
         const newPrediction = await Prediction.create({
             imagePath: imageUrl,
+            annotatedImagePath: annotatedImageUrl,
             result: result.prediction,
             confidence: result.confidence,
             UserId: req.user.id,

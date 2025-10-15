@@ -8,13 +8,12 @@ from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-# --- Configuration ---
 IMAGE_SIZE = 150 # Resize images to 150x150
 BATCH_SIZE = 32
 EPOCHS = 15 # Number of times the model sees the entire dataset
 DATASET_PATH = 'dataset'
 
-# --- Data Loading and Preprocessing ---
+#Data Loading and Preprocessing
 print("Loading and preprocessing data...")
 images = []
 labels = []
@@ -48,7 +47,7 @@ X_train, X_val, y_train, y_val = train_test_split(images, labels, test_size=0.2,
 
 print(f"Data loaded: {len(X_train)} training samples, {len(X_val)} validation samples.")
 
-# --- NEW: Data Augmentation ---
+#Data Augmentation
 print("Creating data augmentation generator...")
 datagen = ImageDataGenerator(
     rotation_range=15,      # Randomly rotate images by up to 15 degrees
@@ -61,9 +60,7 @@ datagen = ImageDataGenerator(
 )
 
 datagen.fit(X_train)
-# --- END NEW SECTION ---
 
-# --- CNN Model Architecture ---
 print("Building the CNN model...")
 model = Sequential([
     Conv2D(32, (3, 3), activation='relu', input_shape=(IMAGE_SIZE, IMAGE_SIZE, 1)),
@@ -89,7 +86,7 @@ model.summary()
 
 print("Starting model training with data augmentation...")
 
-# We use datagen.flow() to feed augmented images in batches
+# We use datagen.flow to feed augmented images in batches
 history = model.fit(
     datagen.flow(X_train, y_train, batch_size=BATCH_SIZE),
     steps_per_epoch=len(X_train) // BATCH_SIZE,

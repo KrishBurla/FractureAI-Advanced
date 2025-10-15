@@ -4,7 +4,6 @@ import { recommendations } from '../../utils/recommendations';
 import './ResultCard.css';
 
 const ResultCard = ({ user, result, onReset }) => {
-  // Use 'prediction' if it exists, otherwise fall back to 'result' for consistency
   const prediction = result.prediction || result.result;
   const confidencePercent = (result.confidence * 100).toFixed(2);
   
@@ -18,21 +17,32 @@ const ResultCard = ({ user, result, onReset }) => {
   return (
     <div className="result-card-container">
       <h3>Analysis Result</h3>
-      <div className="result-item">
-        <span className="result-label">Prediction:</span>
-        <span className="result-value prediction">{formatPrediction(prediction)}</span>
-      </div>
-      <div className="result-item">
-        <span className="result-label">Confidence:</span>
-        <div className="confidence-bar-container">
-          <motion.div
-            className="confidence-bar"
-            initial={{ width: 0 }}
-            animate={{ width: `${confidencePercent}%` }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          />
+      <div className="result-main-content">
+        <div className="result-image-container">
+          {/* Use the annotatedImagePath here */}
+          <img src={result.annotatedImagePath} alt="Annotated X-Ray" className="result-image" />
         </div>
-        <span className="result-value confidence">{confidencePercent}%</span>
+        <div className="result-details-container">
+          <div className="analysis-details-section">
+            <h4>Analysis</h4>
+            <div className="result-item">
+              <span className="result-label">Prediction:</span>
+              <span className="result-value prediction">{formatPrediction(prediction)}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Confidence:</span>
+              <div className="confidence-bar-container">
+                <motion.div
+                  className="confidence-bar"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${confidencePercent}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+              </div>
+              <span className="result-value confidence">{confidencePercent}%</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {specificRecommendations && (
